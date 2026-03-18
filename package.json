@@ -1,0 +1,45 @@
+{
+  "name": "viberail",
+  "version": "0.0.1",
+  "description": "Typed behavioral specifications — the blueprint for your functions",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "viberail": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "spec",
+    "specification",
+    "behavioral",
+    "testing",
+    "decision-table",
+    "dependency-graph",
+    "typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^13.0.6"
+  },
+  "peerDependencies": {
+    "jest": ">=29.0.0",
+    "tsx": ">=4.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "jest": {
+      "optional": true
+    },
+    "tsx": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.0"
+  }
+}
