@@ -64,7 +64,7 @@ function linkStep(
     if (!node) {
         return `\`${stepName}\``
     }
-    const rel = relative(dirname(currentPath), node.specPath)
+    const rel = relative(dirname(currentPath), node.specPath).replace(/\\/g, '/')
     return `[\`${stepName}\`](${rel})`
 }
 
@@ -397,12 +397,14 @@ export function buildDependencyGraphMd(graph: DependencyGraph, opts?: { domainPa
 
     // Build stable node IDs from spec paths
     const nodeId = (node: SpecNode): string => {
-        const match = node.specPath.match(domainPattern)
+        const normalizedPath = node.specPath.replace(/\\/g, '/')
+        const match = normalizedPath.match(domainPattern)
         return match ? match[1].replace(/\//g, '_') : node.name
     }
 
     const nodeLabel = (node: SpecNode): string => {
-        const match = node.specPath.match(domainPattern)
+        const normalizedPath = node.specPath.replace(/\\/g, '/')
+        const match = normalizedPath.match(domainPattern)
         return match ? match[1] : node.name
     }
 

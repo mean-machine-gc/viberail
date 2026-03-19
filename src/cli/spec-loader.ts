@@ -2,6 +2,7 @@
 
 import { globSync } from 'glob'
 import { resolve, basename } from 'path'
+import { pathToFileURL } from 'url'
 import type { Spec } from '../spec-framework.js'
 import type { DependencyGraph, SpecNode, SpecEdge } from './spec-tools.js'
 
@@ -53,7 +54,7 @@ export async function loadSpecs(opts: LoadOptions = {}): Promise<SpecAnalysis> {
 
     for (const file of specFiles) {
         const resolvedPath = resolve(cwd, file)
-        const mod = await import(resolvedPath)
+        const mod = await import(pathToFileURL(resolvedPath).href)
         modules.push({ file, mod })
 
         const mdPath = resolvedPath.replace(/\.spec\.ts$/, '.spec.md')
@@ -128,7 +129,7 @@ export async function loadSpecsWithModules(opts: LoadOptions = {}): Promise<{
 
     for (const file of specFiles) {
         const resolvedPath = resolve(cwd, file)
-        const mod = await import(resolvedPath)
+        const mod = await import(pathToFileURL(resolvedPath).href)
         modules.push({ file, mod })
 
         const mdPath = resolvedPath.replace(/\.spec\.ts$/, '.spec.md')
