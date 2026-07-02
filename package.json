@@ -1,6 +1,6 @@
 {
   "name": "viberail",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Typed behavioral specifications — the blueprint for your functions",
   "type": "module",
   "main": "./dist/index.js",
