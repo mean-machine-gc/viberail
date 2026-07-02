@@ -108,6 +108,24 @@ export type SuccessGroup<Fn extends AnyFn> = {
     examples: SuccessExample<Fn>[]
 }
 
+// -- No-op --------------------------------------------------------------------
+// A DECIDER (see execDecider) can produce a legitimate "nothing happened" outcome: when NO condition
+// fires, it returns ok:true with an EMPTY successType and no events — and, since state is the fold of
+// those events, unchanged state. This is how idempotent redelivery is absorbed. Because there is no
+// successType, it can't live in shouldSucceedWith (which is keyed by successType); it gets its own
+// optional section. testSpec asserts: ok:true, successType === [], events === [], and (when both the
+// input and output carry `state`) state unchanged.
+
+export type NoOpExample<Fn extends AnyFn> = {
+    description: string
+    whenInput: Fn['input']
+}
+
+export type NoOpGroup<Fn extends AnyFn> = {
+    description: string
+    examples: NoOpExample<Fn>[]
+}
+
 // -- Assertions ---------------------------------------------------------------
 
 export type SpecAssert<Fn extends AnyFn> = (input: Fn['input'], output: Fn['output']) => boolean
@@ -131,6 +149,8 @@ export type Spec<Fn extends AnyFn> = {
     shouldFailWith: Partial<Record<Fn['failures'], FailGroup<Fn>>>
     shouldSucceedWith: Record<Fn['successTypes'], SuccessGroup<Fn>>
     shouldAssert: Record<Fn['successTypes'], AssertionGroup<Fn>>
+    // Optional — the decider "nothing happened" outcome (empty successType, no events, unchanged state).
+    shouldNoOp?: NoOpGroup<Fn>
 }
 
 // -- asStepSpec ---------------------------------------------------------------
@@ -281,5 +301,31 @@ export const testSpec = <Fn extends AnyFn>(
                 })
             }
         })
+
+        // -- No-ops -----------------------------------------------------------
+        // The decider "nothing happened" outcome: ok:true, empty successType, no events, unchanged state.
+        if (spec.shouldNoOp && spec.shouldNoOp.examples.length > 0) {
+            const noOp = spec.shouldNoOp
+            describe(`no-op — ${noOp.description}`, () => {
+                for (const example of noOp.examples) {
+                    test(example.description, async () => {
+                        const result = await run(example.whenInput)
+                        expect(result.ok).toBe(true)
+                        if (result.ok) {
+                            expect(result.successType).toEqual([]) // no condition fired
+                            const value = result.value as { events?: unknown; state?: unknown }
+                            if (value && typeof value === 'object' && 'events' in value) {
+                                expect(value.events).toEqual([]) // nothing emitted
+                            }
+                            // when the input carries the seed state, a no-op must leave it untouched
+                            const input = example.whenInput as { state?: unknown }
+                            if (value && typeof value === 'object' && 'state' in value && input && typeof input === 'object' && 'state' in input) {
+                                expect(value.state).toEqual(input.state)
+                            }
+                        }
+                    })
+                }
+            })
+        }
     })
 }
