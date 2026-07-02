@@ -2,6 +2,7 @@
 
 export * from './spec-framework.js'
 export * from './canonical.js'
+export * from './decider.js'
 export * from './cli/spec-loader.js'
 export * from './cli/spec-tools.js'
 export { runChecks, analyzeSpecs, type CheckSummary } from './cli/check/index.js'
